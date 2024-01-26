@@ -1,0 +1,27 @@
+{
+  "name": "inilim/task_manager",
+  "description": "task_manager",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Inilim\\TaskManager\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "inilim"
+    }
+  ],
+  "files": [
+    "src/functions.php"
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": "^8.2",
+    "nesbot/carbon": "@stable",
+    "inilim/array": "dev-main",
+    "inilim/json_helper": "dev-main",
+    "inilim/integer": "dev-main"
+  }
+}
