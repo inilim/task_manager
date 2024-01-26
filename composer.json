@@ -6,16 +6,16 @@
   "autoload": {
     "psr-4": {
       "Inilim\\TaskManager\\": "src/"
-    }
+    },
+    "files": [
+      "fn/functions.php",
+      "fn/dev.php"
+    ]
   },
   "authors": [
     {
       "name": "inilim"
     }
-  ],
-  "files": [
-    "fn/functions.php",
-    "fn/dev.php"
   ],
   "minimum-stability": "dev",
   "require": {
