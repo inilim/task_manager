@@ -10,8 +10,8 @@ use Inilim\TaskManager\IPDO;
 class Env
 {
     public static array $components = [
-        'json' => null,
-        'array' => null,
+        'json'    => null,
+        'array'   => null,
         'integer' => null,
     ];
 
