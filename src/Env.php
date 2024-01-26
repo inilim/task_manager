@@ -17,10 +17,12 @@ class Env
 
     public static function init(): void
     {
+        // настройки для подключение к бд
         IPDO::$login = 'root';
         IPDO::$pass  = '';
         IPDO::$name  = 'noks_local'; // имя базы
 
+        // инициализируем хелперы
         self::$components['json']    = new JSON;
         self::$components['integer'] = new Integer;
         self::$components['array']   = new Array_;
