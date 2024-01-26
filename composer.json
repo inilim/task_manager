@@ -14,7 +14,8 @@
     }
   ],
   "files": [
-    "src/functions.php"
+    "fn/functions.php",
+    "fn/dev.php"
   ],
   "minimum-stability": "dev",
   "require": {

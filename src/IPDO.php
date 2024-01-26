@@ -139,6 +139,7 @@ class IPDO
          return $this->mainProccess($sql, $values);
       } catch (Throwable $e) {
          $this->lastStatus = false;
+         print_r($e);
          // writeLog(self::class, [
          //    'exception_data' => CollectDataException($e),
          //    'query' => $this->shortQuery($sql),
@@ -185,33 +186,6 @@ class IPDO
       unset($values);
       return $this->defineResult($stm);
    }
-
-   /**
-    * Из-за PDO::ATTR_EMULATE_PREPARES не работают одинаковые маски в запросах
-    *
-    * @param string[] $masks
-    */
-   // protected function addMask(array $masks, array &$values, string &$sql): void
-   // {
-   //    if (!sizeof($masks)) return;
-   //    $masks = array_count_values($masks);
-   //    $masks = array_filter($masks, fn ($v) => $v > 1);
-   //    if (!sizeof($masks)) return;
-   //    $hashes = [];
-   //    foreach ($masks as $mask_name => $count_repet) {
-   //       $repet_value = $values[$mask_name];
-   //       $count_repet--;
-   //       for ($i = 0; $i < $count_repet; $i++) {
-   //          $new_mask = $mask_name . $i;
-   //          $hashes[$new_mask] = md5($new_mask);
-   //          $sql = $this->replaceOnce(':' . $mask_name, $hashes[$new_mask], $sql);
-   //          $values[$new_mask] = $repet_value;
-   //       }
-   //    }
-   //    $masks = array_keys($hashes);
-   //    $masks = array_map(fn ($m) => ':' . $m, $masks);
-   //    $sql = str_replace($hashes, $masks, $sql);
-   // }
 
    /**
     * TODO нужно потестить
@@ -288,25 +262,6 @@ class IPDO
 
       return $sql;
    }
-
-   // protected function mysql_escape_string(string $unescaped_string): string
-   // {
-   //    $replacementMap = [
-   //       "\0" => "\\0",
-   //       "\n" => "\\n",
-   //       "\r" => "\\r",
-   //       "\t" => "\\t",
-   //       chr(26) => "\\Z",
-   //       chr(8) => "\\b",
-   //       '"' => '\"',
-   //       "'" => "\'",
-   //       '_' => "\_",
-   //       "%" => "\%",
-   //       '\\' => '\\\\'
-   //    ];
-
-   //    return \strtr($unescaped_string, $replacementMap);
-   // }
 
    protected function setBindParams(PDOStatement &$stm, array &$values): void
    {
