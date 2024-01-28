@@ -19,8 +19,8 @@ class Env
     {
         // настройки для подключение к бд
         IPDO::$login = 'root';
-        IPDO::$pass  = '';
-        IPDO::$name  = 'noks_local'; // имя базы
+        IPDO::$pass  = 'root';
+        IPDO::$name  = 'task_manager'; // имя базы
 
         // инициализируем хелперы
         self::$components['json']    = new JSON;
