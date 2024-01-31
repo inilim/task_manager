@@ -14,15 +14,16 @@ Env::init();
 // тут будет точка входа
 
 $res  = IPDO::exec('SELECT * FROM tasks LIMIT 1', 1);
+// $res1 = $res.$class;
 
 // $main = new Main($res->id, $res->created_at, $res->started_at, $res->class, $res->method, $res->complited_at, $res->params);
 $main = new Main();
-$main->checkClass('Inilim\TaskManager\Main');
-$main->checkMethod('Inilim\TaskManager\Main', 'checkTaskStatus');
+$main->checkClass($res['class']);
+$main->checkMethod($res['class'], $res['method']);
 
 echo '<pre>';
 
-var_dump(IPDO::status());
+// var_dump(IPDO::status());
 
 echo '<br>';
 
