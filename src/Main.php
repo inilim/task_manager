@@ -2,40 +2,48 @@
 
 namespace Inilim\TaskManager;
 
+use DateTime;
+
 class Main
 {
-  private int $id;
-  private int $start;
-  private array $status; //planned, starting, done, error
-  private bool $repeat;
+  // protected $id;
+  // protected $created_at;
+  // protected $started_at;
 
-  /**
-   * @param int $id;
-   * @param int $start;
-   * @param int[] $status;
-   * @param bool/null $repeat;
-   */
+  // function __construct(
+  //   int $id,
+  //   DateTime $created_at,
+  //   ?DateTime $started_at,
+  //   string $class,
+  //   string $method,
+  //   ?DateTime $completed_at,
+  //   ?string $params
+  // ) {
+  //   $this->id = $id;
+  //   $this->created_at = $created_at;
+  //   $this->created_at = $started_at;
+  // }
 
-  function __construct(
-    int $id,
-    int $start,
-    array $status,
-    ?bool $repeat,
-  ) {
-    $this->id = $id;
-    $this->start = $start;
-    $this->status = $status;
-    $this->repeat = $repeat;
-  }
-
-  function checkTaskStatus()
+  public function checkClass($class)
   {
-    if ($this->status) {
-    } else return;
+    if (class_exists($class)) {
+      echo ('Класс существует <br>');
+    } else echo('Класс не найден  <br>');
   }
 
 
-  function checkStatusWork()
+  public function checkMethod($class, $method)
   {
+    if(method_exists($class, $method)) {
+      echo ('Метод существует <br>');
+    } else echo('Метод не найден  <br>');
+  }
+
+  protected function errorLog(): void
+  {
+  }
+
+  function start() {
+    
   }
 }
