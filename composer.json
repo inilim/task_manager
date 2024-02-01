@@ -20,7 +20,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": "^8.2",
-    "nesbot/carbon": "@stable",
+    "nesbot/carbon": "3.x-dev",
     "inilim/array": "dev-main",
     "inilim/json_helper": "dev-main",
     "inilim/integer": "dev-main"

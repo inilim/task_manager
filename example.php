@@ -11,28 +11,6 @@ Env::init();
 // exit();
 // тут будет точка входа
 
-$res  = IPDO::exec('SELECT * FROM tasks LIMIT 1', 1);
+$task  = IPDO::exec('SELECT * FROM tasks LIMIT 1', 1);
 
-$main = new Main(
-  $res['id'],
-  $res['created_at'],
-  $res['started_at'],
-  $res['class'],
-  $res['method'],
-  $res['completed_at'],
-  $res['params']
-);
-// $main = new Main();
-// $main->checkClass();
-// $main->checkMethod();
-$main->start();
-
-echo '<pre>';
-
-// var_dump(IPDO::status());
-
-echo '<br>';
-
-// print_r($res);
-
-echo '</pre>';
+$main = new Main($task);
