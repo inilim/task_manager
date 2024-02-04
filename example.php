@@ -26,6 +26,6 @@ use Carbon\Carbon;
 // phpinfo();
 // echo $_SERVER['HTTP_USER_AGENT'];
 
-// $mysql->query('INSERT INTO `tasks` (`id`, `created_at`, `started_at`, `class`, `method`, `completed_at`, `params`) VALUES (NULL, '2024-02-04 09:06:26', NULL, 'Inilim\\TaskManager\\IPDO\'', 'checkStatusWork', NULL, NULL);
+// $mysql->query('INSERT INTO `tasks` (`id`, `created_at`, `started_at`, `class`, `method`, `completed_at`, `params`) VALUES (NULL, UNIX_TIMESTAMP(), NULL, 'Inilim\\TaskManager\\IPDO\'', 'checkStatusWork', NULL, NULL);
 
 exit();
