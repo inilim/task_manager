@@ -1,10 +1,9 @@
 <?php require 'vendor/autoload.php';
 
 use Inilim\TaskManager\Env;
-use Inilim\TaskManager\Main;
+use Inilim\TaskManager\TaskManager;
 
 
 // Прочие подключения
 Env::init();
-$main = new Main;
-$main->setLogClass(new Logger);
+$main = new TaskManager;

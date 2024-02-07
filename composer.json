@@ -7,10 +7,7 @@
     "psr-4": {
       "Inilim\\TaskManager\\": "src/"
     },
-    "files": [
-      "fn/functions.php",
-      "fn/dev.php"
-    ]
+    "files": []
   },
   "authors": [
     {
@@ -21,9 +18,6 @@
   "require": {
     "php": "^8.2",
     "nesbot/carbon": "^3.0",
-    "ramsey/uuid": "^4.7",
-    "inilim/array": "dev-main",
-    "inilim/json_helper": "dev-main",
-    "inilim/integer": "dev-main"
+    "ramsey/uuid": "^4.7"
   }
 }
