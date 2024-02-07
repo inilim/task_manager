@@ -4,13 +4,14 @@ namespace Inilim\TaskManager;
 
 use Carbon\Carbon;
 use Ramsey\Uuid\Uuid;
+use Inilim\IPDO\IPDO;
 
 class TaskManager
 {
     protected array $task;
 
     public function __construct(
-        protected IPDO $db
+        protected readonly IPDO $db
     ) {
         if (!$this->initTask()) return;
 
@@ -36,24 +37,24 @@ class TaskManager
 
     protected function initTask(): bool
     {
-        $task_manager_id = Uuid::uuid7()->toString();
-        $started_at      = (string)Carbon::now();
+        $manager_id = Uuid::uuid7()->toString();
+        $started_at = (string)Carbon::now();
 
-        IPDO::exec(
+        $this->db->exec(
             'UPDATE tasks
-            SET task_manager_id = :task_manager_id, started_at = :started_at
+            SET manager_id = :manager_id, started_at = :started_at
             WHERE started_at is NULL AND manager_id is NULL LIMIT 1',
             [
-                'task_manager_id' => $task_manager_id,
-                'started_at'      => $started_at,
+                'manager_id' => $manager_id,
+                'started_at' => $started_at,
             ]
         );
 
-        $this->task = IPDO::exec(
-            'SELECT * FROM tasks WHERE task_manager_id = :task_manager_id AND complited_at is NULL AND started_at = :started_at',
+        $this->task = $this->db->exec(
+            'SELECT * FROM tasks WHERE manager_id = :manager_id AND complited_at is NULL AND started_at = :started_at',
             [
-                'task_manager_id' => $task_manager_id,
-                'started_at'      => $started_at,
+                'manager_id' => $manager_id,
+                'started_at' => $started_at,
             ],
             1
         );
@@ -86,7 +87,7 @@ class TaskManager
 
     protected function endTask(): void
     {
-        IPDO::exec(
+        $this->db->exec(
             'UPDATE tasks SET complited_at = :complited_at WHERE manager_id = :manager_id',
             [
                 'complited_at' => (string)Carbon::now(),
