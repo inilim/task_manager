@@ -6,67 +6,64 @@ use Carbon\Carbon;
 
 class Main
 {
-  protected $task;
-
-  function __construct(
-    array $task
+  public function __construct(
+    protected array $task
   ) {
-    $this->task = $task;
-    echo 'Проверка задания <br>';
-    echo 'Дата создания задания: ';
-    echo $this->task['created_at'];
-    echo '<br>';
-    echo 'Проверка контроллера: ';
-    $this->checkClass();
-    echo 'Проверка метода: ';
-    $this->checkMethod();
+    if (!$this->checkClass()) {
+      $this->errorLog(['Класса не существует']);
+      $this->endTask();
+      return;
+    }
+
+    if (!$this->checkMethod()) {
+      $this->errorLog(['Метод класса не существует']);
+      $this->endTask();
+      return;
+    }
+
     $this->start();
     $this->endTask();
   }
 
-  protected function checkClass()
+  // ------------------------------------------------------------------
+  // protected
+  // ------------------------------------------------------------------
+
+  protected function checkClass(): bool
   {
-    if (class_exists($this->task['class'])) {
-      echo 'класс существует <br>';
-    } else {
-      echo 'ОШИБКА: класс не найден  <br>';
-      $this->endTask();
-    }
+    return \class_exists($this->task['class']);
   }
 
-  protected function checkMethod()
+  protected function checkMethod(): bool
   {
-    if (method_exists($this->task['class'], $this->task['method'])) {
-      echo 'метод существует <br>';
-    } else {
-      echo 'ОШИБКА: метод не найден  <br>';
-      $this->endTask();
-    }
+    return \method_exists($this->task['class'], $this->task['method']);
   }
 
-  public function start()
+  protected function start(): void
   {
-    $class = $this->task['class'];
+    $class  = $this->task['class'];
     $method = $this->task['method'];
     try {
       $object = new $class;
       $object->$method($this->task['params']);
     } catch (\Throwable $e) {
-      echo 'Ошибка: ' . $e->getMessage();
       $this->errorLog($e);
     }
   }
 
-
-  protected function endTask()
+  protected function endTask(): void
   {
-    IPDO::exec("
-  UPDATE tasks
-  SET complited_at = ' . Carbon::now() . ' 
-  WHERE task_mager_id = ' . $this->task['task_manager_id'] . '", 1);
+    IPDO::exec(
+      'UPDATE tasks SET complited_at = :complited_at WHERE manager_id = :manager_id',
+      [
+        'complited_at' => (string)Carbon::now(),
+        'manager_id'   => $this->task['manager_id'],
+      ]
+    );
   }
 
   protected function errorLog($e): void
   {
+    // TODO ТАЙНА
   }
 }

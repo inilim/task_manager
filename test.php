@@ -1,5 +1,45 @@
 <?php
 
+$a = [];
+$a = null;
+$a = 0;
+$a = false;
+
+
+
+if (is_null($a)) {
+}
+
+
+
+if ($a === null) {
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exit();
 try {
   $mysql = new mysqli('localhost', 'root', 'root', 'task_manager'); // подключаемся к базе 
 } catch (Exception $e) {

@@ -3,29 +3,33 @@
 use Inilim\TaskManager\Env;
 use Inilim\TaskManager\IPDO;
 use Inilim\TaskManager\Main;
-
 use Carbon\Carbon;
+use Ramsey\Uuid\Rfc4122\UuidV7;
 
-// var_dump($argv);
-exit();
 // Прочие подключения
 Env::init();
 
 // тут будет точка входа
+$task_manager_id = UuidV7::uuid7(); // 76254234
+$started_at = (string)Carbon::now();
 
-$startet_at = Carbon::now();
-$task_id = rand();
+$task  = IPDO::exec(
+    'UPDATE tasks
+    SET task_manager_id = :task_manager_id, started_at = :started_at
+    WHERE started_at is NULL AND manager_id is NULL LIMIT 1',
+    [
+        'task_manager_id' => $task_manager_id,
+        'started_at'      => $started_at,
+    ]
+);
 
-$task  = IPDO::exec('
-UPDATE tasks
-SET task_mager_id = ' . $task_manager_id . ' 
-SET started_at = ' . $startet_at . ' 
-WHERE started_at is NULL AND manager_id is NULL LIMIT 1', 1);
-$task  = IPDO::exec('SELECT * FROM tasks WHERE started_at = $startet_at LIMIT 1', 1);
-// $task  = IPDO::exec('SELECT * FROM tasks WHERE started_at is NULL LIMIT 1', 1);
-// $manager_id = new Main($task);
+$task  = IPDO::exec('SELECT * FROM tasks WHERE task_manager_id = :task_manager_id AND complited_at is NULL AND started_at = :started_at', [
+    'task_manager_id' => $task_manager_id,
+    'started_at'      => $started_at,
+], 2);
 
+if (sizeof($task) > 1) {
+    // TODO ЭПИК!
+}
 
-// UPDATE tasks
-// SET manager_id = :uniq_id
-// WHERE started_at is NULL AND manager_id is NULL LIMIT 1
+new Main($task);
