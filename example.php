@@ -4,28 +4,28 @@ use Inilim\TaskManager\Env;
 use Inilim\TaskManager\IPDO;
 use Inilim\TaskManager\Main;
 
+use Carbon\Carbon;
+
+// var_dump($argv);
+exit();
 // Прочие подключения
 Env::init();
 
-// var_dump(function_exists('integer'));
 // тут будет точка входа
 
-$task  = IPDO::exec('SELECT * FROM tasks LIMIT 1', 1);
+$startet_at = Carbon::now();
+$task_id = rand();
 
-// $main = new Main($task);
+$task  = IPDO::exec('
+UPDATE tasks
+SET task_mager_id = ' . $task_manager_id . ' 
+SET started_at = ' . $startet_at . ' 
+WHERE started_at is NULL AND manager_id is NULL LIMIT 1', 1);
+$task  = IPDO::exec('SELECT * FROM tasks WHERE started_at = $startet_at LIMIT 1', 1);
+// $task  = IPDO::exec('SELECT * FROM tasks WHERE started_at is NULL LIMIT 1', 1);
+// $manager_id = new Main($task);
 
-use Carbon\Carbon;
 
-// $date = Carbon::now()->DateTimeZone('Europe/Moscow');
-
-// echo $date->DateTimeZone();            // fr_FR
-// echo date('m-l H:i:s', time() + 10800). '<br>';
-// echo date('m-d-Y H:i:s', strtotime("+ 3 Hour")). '<br>';
-// echo "\n";
-// printf("Now: %s", Carbon::now());
-// phpinfo();
-// echo $_SERVER['HTTP_USER_AGENT'];
-
-// $mysql->query('INSERT INTO `tasks` (`id`, `created_at`, `started_at`, `class`, `method`, `completed_at`, `params`) VALUES (NULL, UNIX_TIMESTAMP(), NULL, 'Inilim\\TaskManager\\IPDO\'', 'checkStatusWork', NULL, NULL);
-
-exit();
+// UPDATE tasks
+// SET manager_id = :uniq_id
+// WHERE started_at is NULL AND manager_id is NULL LIMIT 1

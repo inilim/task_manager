@@ -3,30 +3,28 @@
 try {
   $mysql = new mysqli('localhost', 'root', 'root', 'task_manager'); // подключаемся к базе 
 } catch (Exception $e) {
-  echo 'Ошибка при подключении к базе данных: '.$e->getMessage();
+  echo 'Ошибка при подключении к базе данных: ' . $e->getMessage();
   exit();
 }
 
-for ($i = 0; $i < 5; $i++) {
-  $tasks = $mysql->query("SELECT * FROM test LIMIT 1"); // находим первую строку
-  $task = $tasks->fetch_assoc(); // парсер в массив
 
-  if ($task) {
-    print_r($task); // выполнение задания
-    // $id = $task["id"];
-    echo '<br>';
-    $mysql->query("DELETE FROM test WHERE id = '$task[id]'"); // удаление задания
-  } else
-    echo 'Нет заданий <br>';
+$tasks = $mysql->query("SELECT * FROM test LIMIT 1"); // находим первую строку
+$task = $tasks->fetch_assoc(); // парсер в массив
 
-  // sleep(3);
+if ($task) {
+  print_r($task); // выполнение задания
+  // $id = $task["id"];
+  echo '<br>';
+  $mysql->query("DELETE FROM test WHERE id = '$task[id]'"); // удаление задания
+} else
+  echo 'Нет заданий <br>';
 
-  // header("Refresh:0");
 
-  // echo '<script>';
-  // echo 'window.location.reload();';
-  // echo '</script>';
-}
+// header("Refresh:0");
+
+// echo '<script>';
+// echo 'window.location.reload();';
+// echo '</script>';
 $mysql->close();
 
 
