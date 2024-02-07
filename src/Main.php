@@ -3,12 +3,18 @@
 namespace Inilim\TaskManager;
 
 use Carbon\Carbon;
+use Inilim\TaskManager\Interface\LoggerInterface;
+use Ramsey\Uuid\Rfc4122\UuidV7;
 
 class Main
 {
-  public function __construct(
-    protected array $task
-  ) {
+  protected LoggerInterface $logger;
+  protected array $task;
+
+  public function __construct()
+  {
+    if (!$this->initTask()) return;
+
     if (!$this->checkClass()) {
       $this->errorLog(['Класса не существует']);
       $this->endTask();
@@ -25,9 +31,42 @@ class Main
     $this->endTask();
   }
 
+  public function setLogClass(LoggerInterface $logger): void
+  {
+    $this->logger = $logger;
+  }
+
   // ------------------------------------------------------------------
   // protected
   // ------------------------------------------------------------------
+
+  protected function initTask(): bool
+  {
+    $task_manager_id = UuidV7::uuid7();
+    $started_at      = (string)Carbon::now();
+
+    IPDO::exec(
+      'UPDATE tasks
+      SET task_manager_id = :task_manager_id, started_at = :started_at
+      WHERE started_at is NULL AND manager_id is NULL LIMIT 1',
+      [
+        'task_manager_id' => $task_manager_id,
+        'started_at'      => $started_at,
+      ]
+    );
+
+    $this->task = IPDO::exec(
+      'SELECT * FROM tasks WHERE task_manager_id = :task_manager_id AND complited_at is NULL AND started_at = :started_at',
+      [
+        'task_manager_id' => $task_manager_id,
+        'started_at'      => $started_at,
+      ],
+      1
+    );
+
+    if (!$this->task) return false;
+    return true;
+  }
 
   protected function checkClass(): bool
   {
@@ -64,6 +103,9 @@ class Main
 
   protected function errorLog($e): void
   {
-    // TODO ТАЙНА
+    try {
+      $this->logger->write($e);
+    } catch (\Throwable) {
+    }
   }
 }
