@@ -13,6 +13,10 @@ class TaskManager
     public function __construct(
         protected readonly IPDO $db
     ) {
+    }
+
+    public function __invoke(): void
+    {
         if (!$this->initTask()) return;
 
         if (!$this->checkClass()) {
