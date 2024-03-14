@@ -14,10 +14,12 @@
       "name": "inilim"
     }
   ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": "^8.2",
-    "nesbot/carbon": "^3.0",
-    "ramsey/uuid": "^4.7",
-    "inilim/ipdo": "dev-main"
+    "inilim/ipdo": "dev-main",
+    "nesbot/carbon": "^3.1",
+    "ramsey/uuid": "^4.7"
   }
 }
