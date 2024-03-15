@@ -9,12 +9,19 @@ use Inilim\IPDO\Exception\FailedExecuteException;
 
 class TaskManager
 {
+    /**
+     * @var mixed[]|array{}|null
+     */
     protected ?array $task = null;
     protected ?\Closure $logger = null;
 
     public function __construct(
-        protected readonly IPDO $db
+        protected readonly IPDO $db,
+        ?\Closure $logger = null,
     ) {
+        if ($logger !== null) {
+            $this->logger = $logger;
+        }
     }
 
     public function __invoke(): void
@@ -51,6 +58,7 @@ class TaskManager
         $manager_id = Uuid::uuid7()->toString();
         $started_at = (string)Carbon::now();
 
+        // Помечаем свободную задача manager_id
         try {
             $this->db->exec(
                 'UPDATE tasks
@@ -58,8 +66,8 @@ class TaskManager
             WHERE
                 (started_at is NULL AND manager_id is NULL)
             OR
-                (`repeat_after` is not null
-                AND `complited_at` is not null
+                (`repeat_after` is not NULL
+                AND `complited_at` is not NULL
                 AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
             LIMIT 1',
                 [
@@ -72,6 +80,7 @@ class TaskManager
             return false;
         }
 
+        // забираем помеченную задачу
         try {
             $this->task = $this->db->exec(
                 'SELECT * FROM tasks WHERE manager_id = :manager_id AND started_at = :started_at',
@@ -128,14 +137,10 @@ class TaskManager
     }
 
     /**
-     * Undocumented function
-     *
-     * @param array $messages
-     * @param null|\Throwable|null $e
-     * @param null|array|null $task
-     * @return void
+     * @param string[] $messages
+     * @param mixed[]|null $task
      */
-    protected function errorLog(array $messages = [], null|\Throwable $e = null, null|array $task = null): void
+    protected function errorLog(array $messages = [], ?\Throwable $e = null, ?array $task = null): void
     {
         if ($this->logger === null) return;
         try {
