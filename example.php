@@ -16,4 +16,7 @@ $db = new IPDOMySQL(
     new Array_
 );
 
-new TaskManager($db);
+$manager = new TaskManager($db);
+
+$manager->setLogger(function (array $messages, null|\Throwable $e, null|array $task) {
+});
