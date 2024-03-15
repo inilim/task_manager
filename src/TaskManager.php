@@ -46,8 +46,14 @@ class TaskManager
 
         $this->db->exec(
             'UPDATE tasks
-            SET manager_id = :manager_id, started_at = :started_at
-            WHERE started_at is NULL AND manager_id is NULL LIMIT 1',
+            SET `manager_id` = :manager_id, `started_at` = :started_at, `counter` = (`counter` + 1)
+            WHERE
+                (started_at is NULL AND manager_id is NULL)
+            OR
+                (`repeat_after` is not null
+                AND `complited_at` is not null
+                AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
+            LIMIT 1',
             [
                 'manager_id' => $manager_id,
                 'started_at' => $started_at,
@@ -55,7 +61,7 @@ class TaskManager
         );
 
         $this->task = $this->db->exec(
-            'SELECT * FROM tasks WHERE manager_id = :manager_id AND complited_at is NULL AND started_at = :started_at',
+            'SELECT * FROM tasks WHERE manager_id = :manager_id AND started_at = :started_at',
             [
                 'manager_id' => $manager_id,
                 'started_at' => $started_at,
