@@ -115,7 +115,7 @@ class TaskManager
         $method = $this->task['method'];
         try {
             $object = new $class;
-            $object->$method($this->task['params']);
+            $object->$method($this->task['params'], $this->task);
         } catch (\Throwable $e) {
             $this->errorLog(e: $e, task: $this->task);
         }
