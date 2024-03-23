@@ -6,7 +6,7 @@ CREATE TABLE `tasks` (
   `class` varchar(255) NOT NULL,
   `method` varchar(255)  NOT NULL,
   `created_at` timestamp NOT NULL,
-  `repeat_after` int unsigned DEFAULT NULL,
+  `repeat_after` int unsigned DEFAULT NULL COMMENT 'seconds',
   `counter` int unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `params` text,

@@ -61,15 +61,19 @@ class TaskManager
         // Помечаем свободную задача manager_id
         try {
             $this->db->exec(
-                'UPDATE tasks
-            SET `manager_id` = :manager_id, `started_at` = :started_at, `counter` = (`counter` + 1)
-            WHERE
-                (started_at is NULL AND manager_id is NULL)
-            OR
-                (`repeat_after` is not NULL
-                AND `complited_at` is not NULL
-                AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
-            LIMIT 1',
+                'UPDATE `tasks`
+                SET `manager_id` = :manager_id,
+                    `started_at` = :started_at,
+                    `counter` = (`counter` + 1)
+                WHERE
+                    (`manager_id` is NULL AND `started_at` is NULL)
+                OR
+                    (`started_at` is not NULL
+                    AND `repeat_after` is not NULL
+                    AND `complited_at` is not NULL
+                    AND `started_at` < `complited_at`
+                    AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
+                LIMIT 1',
                 [
                     'manager_id' => $manager_id,
                     'started_at' => $started_at,
@@ -83,7 +87,9 @@ class TaskManager
         // забираем помеченную задачу
         try {
             $this->task = $this->db->exec(
-                'SELECT * FROM tasks WHERE manager_id = :manager_id AND started_at = :started_at',
+                'SELECT * FROM `tasks`
+                WHERE `manager_id` = :manager_id
+                AND `started_at` = :started_at',
                 [
                     'manager_id' => $manager_id,
                     'started_at' => $started_at,
@@ -124,8 +130,11 @@ class TaskManager
     protected function endTask(): void
     {
         try {
+            // `manager_id` = IF(`repeat_after` is NULL, `manager_id`, NULL)
             $this->db->exec(
-                'UPDATE tasks SET complited_at = :complited_at WHERE manager_id = :manager_id',
+                'UPDATE `tasks`
+                SET `complited_at` = :complited_at
+                WHERE `manager_id` = :manager_id',
                 [
                     'complited_at' => (string)Carbon::now(),
                     'manager_id'   => $this->task['manager_id'],
