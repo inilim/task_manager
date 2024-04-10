@@ -71,7 +71,7 @@ class TaskManager
                     (`started_at` is not NULL
                     AND `repeat_after` is not NULL
                     AND `complited_at` is not NULL
-                    AND `started_at` < `complited_at`
+                    AND `started_at` <= `complited_at`
                     AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
                 LIMIT 1',
                 [
