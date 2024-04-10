@@ -66,10 +66,17 @@ class TaskManager
                     `started_at` = :started_at,
                     `counter` = (`counter` + 1)
                 WHERE
-                    (`manager_id` is NULL AND `started_at` is NULL)
+                    (`manager_id` is NULL
+                    AND `started_at` is NULL
+                    AND `execute_after` is NULL)
                 OR
-                    (`started_at` is not NULL
-                    AND `repeat_after` is not NULL
+                    (`manager_id` is NULL
+                    AND `started_at` is NULL
+                    AND `execute_after` is not NULL
+                    AND CURRENT_TIMESTAMP() >= `execute_after`)
+                OR
+                    (`repeat_after` is not NULL
+                    AND `started_at` is not NULL
                     AND `complited_at` is not NULL
                     AND `started_at` <= `complited_at`
                     AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
