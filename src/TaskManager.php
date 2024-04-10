@@ -73,6 +73,8 @@ class TaskManager
                     AND `complited_at` is not NULL
                     AND `started_at` <= `complited_at`
                     AND (UNIX_TIMESTAMP(`complited_at`) + `repeat_after`) < UNIX_TIMESTAMP())
+                    
+                ORDER BY `updated_at` ASC
                 LIMIT 1',
                 [
                     'manager_id' => $manager_id,
