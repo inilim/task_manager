@@ -26,6 +26,24 @@ class TaskManager
 
     public function __invoke(): void
     {
+        try {
+            $this->process();
+        } catch (\Throwable $e) {
+            $this->errorLog(e: $e);
+        }
+    }
+
+    public function setLogger(\Closure $logger): void
+    {
+        $this->logger = $logger;
+    }
+
+    // ------------------------------------------------------------------
+    // protected
+    // ------------------------------------------------------------------
+
+    protected function process(): void
+    {
         if (!$this->initTask()) return;
 
         if (!$this->checkClass()) {
@@ -43,15 +61,6 @@ class TaskManager
         $this->start();
         $this->endTask();
     }
-
-    public function setLogger(\Closure $logger): void
-    {
-        $this->logger = $logger;
-    }
-
-    // ------------------------------------------------------------------
-    // protected
-    // ------------------------------------------------------------------
 
     protected function initTask(): bool
     {
