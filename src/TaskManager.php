@@ -89,7 +89,7 @@ class TaskManager
                 ]
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getErrors(), e: $e);
+            $this->errorLog(messages: $e->getError(), e: $e);
             return false;
         }
 
@@ -106,7 +106,7 @@ class TaskManager
                 1
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getErrors(), e: $e);
+            $this->errorLog(messages: $e->getError(), e: $e);
             return false;
         }
 
@@ -150,7 +150,7 @@ class TaskManager
                 ]
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getErrors(), e: $e, task: $this->task);
+            $this->errorLog(messages: $e->getError(), e: $e, task: $this->task);
         }
     }
 
