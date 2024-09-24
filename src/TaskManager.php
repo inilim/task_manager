@@ -23,12 +23,43 @@ class TaskManager
         }
     }
 
+    /**
+     * @deprecated use one()
+     */
     function __invoke(): void
+    {
+        $this->one();
+    }
+
+    function one(): void
     {
         try {
             $this->process();
         } catch (\Throwable $e) {
             $this->errorLog(e: $e);
+        }
+    }
+
+    function many(int $seconds): void
+    {
+        while (true) {
+            $start = \time();
+            try {
+                if ($this->initTask() && $this->checkTask()) {;
+                    $this->startTask();
+                    $this->complitedTask();
+                } else {
+                    \sleep(1);
+                }
+            } catch (\Throwable $e) {
+                $this->errorLog(e: $e);
+                unset($e);
+            }
+
+            $seconds -= \time() - $start;
+            if ($seconds <= 0) {
+                break;
+            }
         }
     }
 
@@ -43,8 +74,7 @@ class TaskManager
 
     protected function process(): void
     {
-        if (!$this->initTask()) return;
-        if (!$this->checkTask()) return;
+        if (!$this->initTask() || !$this->checkTask()) return;
         $this->startTask();
         $this->complitedTask();
     }
