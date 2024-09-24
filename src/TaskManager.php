@@ -44,27 +44,32 @@ class TaskManager
     protected function process(): void
     {
         if (!$this->initTask()) return;
+        if (!$this->checkTask()) return;
+        $this->startTask();
+        $this->complitedTask();
+    }
 
-        if (!$this->checkTask()) {
+    protected function checkTask(): bool
+    {
+        if (!$this->checkSignature()) {
             $this->errorLog(messages: ['Неизвестная сигнатура задачи'], task: $this->task);
-            $this->endTask();
-            return;
+            $this->complitedTask();
+            return false;
         }
 
         if (!$this->checkClass()) {
             $this->errorLog(messages: ['Класс не существует'], task: $this->task);
-            $this->endTask();
-            return;
+            $this->complitedTask();
+            return false;
         }
 
         if (!$this->checkMethod()) {
             $this->errorLog(messages: ['Метод класса не существует'], task: $this->task);
-            $this->endTask();
-            return;
+            $this->complitedTask();
+            return false;
         }
 
-        $this->start();
-        $this->endTask();
+        return true;
     }
 
     protected function initTask(): bool
@@ -138,12 +143,15 @@ class TaskManager
         return \method_exists($this->task['class'], $this->task['method']);
     }
 
-    protected function checkTask(): bool
+    protected function checkSignature(): bool
     {
         if (!\is_string($this->task['class'] ?? null)) {
             return false;
         }
         if (!\is_string($this->task['method'] ?? null)) {
+            return false;
+        }
+        if (!\is_string($this->task['manager_id'] ?? null)) {
             return false;
         }
         if (!\array_key_exists('params', $this->task)) {
@@ -152,7 +160,7 @@ class TaskManager
         return true;
     }
 
-    protected function start(): void
+    protected function startTask(): void
     {
         $class  = $this->task['class'];
         $method = $this->task['method'];
@@ -164,7 +172,7 @@ class TaskManager
         }
     }
 
-    protected function endTask(): void
+    protected function complitedTask(): void
     {
         try {
             // `manager_id` = IF(`repeat_after` is NULL, `manager_id`, NULL)
