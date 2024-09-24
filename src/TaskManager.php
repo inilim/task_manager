@@ -45,7 +45,7 @@ class TaskManager
         while (true) {
             $start = \time();
             try {
-                if ($this->initTask() && $this->checkTask()) {;
+                if ($this->initTask() && $this->checkTask()) {
                     $this->startTask();
                     $this->complitedTask();
                 } else {
