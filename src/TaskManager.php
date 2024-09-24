@@ -3,7 +3,6 @@
 namespace Inilim\TaskManager;
 
 use Carbon\Carbon;
-use Ramsey\Uuid\Uuid;
 use Inilim\IPDO\IPDO;
 use Inilim\IPDO\Exception\FailedExecuteException;
 
@@ -15,7 +14,7 @@ class TaskManager
     protected ?array $task = null;
     protected ?\Closure $logger = null;
 
-    public function __construct(
+    function __construct(
         protected readonly IPDO $db,
         ?\Closure $logger = null,
     ) {
@@ -24,7 +23,7 @@ class TaskManager
         }
     }
 
-    public function __invoke(): void
+    function __invoke(): void
     {
         try {
             $this->process();
@@ -33,18 +32,24 @@ class TaskManager
         }
     }
 
-    public function setLogger(\Closure $logger): void
+    function setLogger(\Closure $logger): void
     {
         $this->logger = $logger;
     }
 
     // ------------------------------------------------------------------
-    // protected
+    // 
     // ------------------------------------------------------------------
 
     protected function process(): void
     {
         if (!$this->initTask()) return;
+
+        if (!$this->checkTask()) {
+            $this->errorLog(messages: ['Неизвестная сигнатура задачи'], task: $this->task);
+            $this->endTask();
+            return;
+        }
 
         if (!$this->checkClass()) {
             $this->errorLog(messages: ['Класс не существует'], task: $this->task);
@@ -64,7 +69,7 @@ class TaskManager
 
     protected function initTask(): bool
     {
-        $manager_id = Uuid::uuid7()->toString();
+        $manager_id = \_uuid()->v7();
         $started_at = (string)Carbon::now();
 
         // Помечаем свободную задача manager_id
@@ -133,6 +138,20 @@ class TaskManager
         return \method_exists($this->task['class'], $this->task['method']);
     }
 
+    protected function checkTask(): bool
+    {
+        if (!\is_string($this->task['class'] ?? null)) {
+            return false;
+        }
+        if (!\is_string($this->task['method'] ?? null)) {
+            return false;
+        }
+        if (!\array_key_exists('params', $this->task)) {
+            return false;
+        }
+        return true;
+    }
+
     protected function start(): void
     {
         $class  = $this->task['class'];
@@ -171,7 +190,7 @@ class TaskManager
     {
         if ($this->logger === null) return;
         try {
-            ($this->logger)($messages, $e, $task);
+            $this->logger->__invoke($messages, $e, $task);
         } catch (\Throwable) {
         }
     }
