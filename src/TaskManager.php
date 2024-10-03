@@ -113,7 +113,9 @@ class TaskManager
                 'UPDATE `tasks`
                 SET `manager_id` = :manager_id,
                     `started_at` = :started_at,
-                    `counter` = (`counter` + 1)
+                    `counter` = (`counter` + 1),
+                    -- INFO если скрипт крашится, то complited_at не обновляется, и из-за этого задачи типа "repeat_after" стопорятся
+                    `complited_at` = IF(`complited_at` is null, `complited_at`, :started_at)
                 WHERE
                     (`manager_id` is NULL
                     AND `started_at` is NULL
