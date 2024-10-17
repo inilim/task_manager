@@ -134,7 +134,7 @@ final class TaskManager
                     `started_at` = :started_at,
                     `counter` = (`counter` + 1),
                     -- INFO если скрипт крашится, то complited_at не обновляется, и из-за этого задачи типа "repeat_after" стопорятся
-                    `complited_at` = IF(`complited_at` is null, null, :started_at)
+                    `complited_at` = IF(`complited_at` is null, null, :started_at_2)
                 WHERE
                     (`manager_id` is NULL
                     AND `started_at` is NULL
@@ -154,8 +154,10 @@ final class TaskManager
                 ORDER BY `updated_at` ASC
                 LIMIT 1',
                 [
-                    'manager_id' => $manager_id,
-                    'started_at' => $started_at,
+                    'manager_id'   => $manager_id,
+                    'started_at'   => $started_at,
+                    // BUG: php7 PDOStatement options
+                    'started_at_2' => $started_at,
                 ]
             );
         } catch (FailedExecuteException $e) {
@@ -169,7 +171,7 @@ final class TaskManager
             $this->task = $this->db->exec(
                 'SELECT * FROM `tasks`
                 WHERE `manager_id` = :manager_id
-                AND `started_at` = :started_at',
+                AND `started_at`   = :started_at',
                 [
                     'manager_id' => $manager_id,
                     'started_at' => $started_at,
