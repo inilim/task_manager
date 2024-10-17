@@ -17,7 +17,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.2",
+    "php": "^7.4 | ^8.2",
     "inilim/ipdo": "dev-main",
     "nesbot/carbon": "^2.72",
     "inilim/pseudo_uuid": "dev-main"

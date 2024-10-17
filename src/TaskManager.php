@@ -1,26 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Inilim\TaskManager;
 
 use Carbon\Carbon;
 use Inilim\IPDO\IPDO;
 use Inilim\IPDO\Exception\FailedExecuteException;
 
-class TaskManager
+/**
+ * @psalm-type Task = array{id:int,
+ * manager_id:?string,
+ * started_at:?string,
+ * execute_after:?string,
+ * complited_at:?string,
+ * class:string,
+ * method:string,
+ * created_at:string,
+ * repeat_after:?int,
+ * counter:int,
+ * updated_at:string,
+ * params:?string}
+ */
+final class TaskManager
 {
     /**
-     * @var mixed[]|array{}|null
+     * @var ?Task
      */
-    protected ?array $task = null;
+    protected ?array $task      = null;
     protected ?\Closure $logger = null;
+    protected IPDO $db;
 
     function __construct(
-        protected readonly IPDO $db,
-        ?\Closure $logger = null,
+        IPDO $db,
+        ?\Closure $logger = null
     ) {
         if ($logger !== null) {
             $this->logger = $logger;
         }
+        $this->db = $db;
     }
 
     /**
@@ -36,7 +54,7 @@ class TaskManager
         try {
             $this->process();
         } catch (\Throwable $e) {
-            $this->errorLog(e: $e);
+            $this->errorLog([], $e);
         }
     }
 
@@ -52,8 +70,8 @@ class TaskManager
                     \sleep(1);
                 }
             } catch (\Throwable $e) {
-                $this->errorLog(e: $e);
-                unset($e);
+                $this->errorLog([], $e);
+                $e = null;
             }
 
             $seconds -= \time() - $start;
@@ -63,9 +81,10 @@ class TaskManager
         }
     }
 
-    function setLogger(\Closure $logger): void
+    function setLogger(?\Closure $logger): self
     {
         $this->logger = $logger;
+        return $this;
     }
 
     // ------------------------------------------------------------------
@@ -82,19 +101,19 @@ class TaskManager
     protected function checkTask(): bool
     {
         if (!$this->checkSignature()) {
-            $this->errorLog(messages: ['Неизвестная сигнатура задачи'], task: $this->task);
+            $this->errorLog(['Неизвестная сигнатура задачи'], null, $this->task);
             $this->complitedTask();
             return false;
         }
 
         if (!$this->checkClass()) {
-            $this->errorLog(messages: ['Класс не существует'], task: $this->task);
+            $this->errorLog(['Класс не существует'], null, $this->task);
             $this->complitedTask();
             return false;
         }
 
         if (!$this->checkMethod()) {
-            $this->errorLog(messages: ['Метод класса не существует'], task: $this->task);
+            $this->errorLog(['Метод класса не существует'], null, $this->task);
             $this->complitedTask();
             return false;
         }
@@ -140,12 +159,13 @@ class TaskManager
                 ]
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getError(), e: $e);
+            $this->errorLog($e->getError(), $e);
             return false;
         }
 
         // забираем помеченную задачу
         try {
+            // @phpstan-ignore-next-line
             $this->task = $this->db->exec(
                 'SELECT * FROM `tasks`
                 WHERE `manager_id` = :manager_id
@@ -157,7 +177,7 @@ class TaskManager
                 1
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getError(), e: $e);
+            $this->errorLog($e->getError(), $e);
             return false;
         }
 
@@ -167,23 +187,25 @@ class TaskManager
 
     protected function checkClass(): bool
     {
+        // @phpstan-ignore-next-line
         return \class_exists($this->task['class']);
     }
 
     protected function checkMethod(): bool
     {
+        // @phpstan-ignore-next-line
         return \method_exists($this->task['class'], $this->task['method']);
     }
 
     protected function checkSignature(): bool
     {
-        if (!\is_string($this->task['class'] ?? null)) {
+        if (!\is_string($this->task['class'])) {
             return false;
         }
-        if (!\is_string($this->task['method'] ?? null)) {
+        if (!\is_string($this->task['method'])) {
             return false;
         }
-        if (!\is_string($this->task['manager_id'] ?? null)) {
+        if (!\is_string($this->task['manager_id'])) {
             return false;
         }
         if (!\array_key_exists('params', $this->task)) {
@@ -194,13 +216,14 @@ class TaskManager
 
     protected function startTask(): void
     {
-        $class  = $this->task['class'];
-        $method = $this->task['method'];
+
+        $class  = \strval($this->task['class'] ?? '');
+        $method = \strval($this->task['method'] ?? '');
         try {
             $object = new $class;
             $object->$method($this->task['params'], $this->task);
         } catch (\Throwable $e) {
-            $this->errorLog(e: $e, task: $this->task);
+            $this->errorLog([], $e, $this->task);
         }
     }
 
@@ -218,20 +241,23 @@ class TaskManager
                 ]
             );
         } catch (FailedExecuteException $e) {
-            $this->errorLog(messages: $e->getError(), e: $e, task: $this->task);
+            $this->errorLog($e->getError(), $e, $this->task);
         }
     }
 
     /**
-     * @param string[] $messages
+     * @param mixed[] $messages
      * @param mixed[]|null $task
      */
-    protected function errorLog(array $messages = [], ?\Throwable $e = null, ?array $task = null): void
-    {
+    protected function errorLog(
+        array $messages = [],
+        ?\Throwable $e  = null,
+        ?array $task    = null
+    ): void {
         if ($this->logger === null) return;
         try {
             $this->logger->__invoke($messages, $e, $task);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
         }
     }
 }

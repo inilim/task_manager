@@ -10,6 +10,6 @@ CREATE TABLE `tasks` (
   `repeat_after` int unsigned DEFAULT NULL COMMENT 'seconds',
   `counter` int unsigned NOT NULL DEFAULT '0',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `params` text,
+  `params` text NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 )
