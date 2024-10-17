@@ -216,7 +216,6 @@ final class TaskManager
 
     protected function startTask(): void
     {
-
         $class  = \strval($this->task['class'] ?? '');
         $method = \strval($this->task['method'] ?? '');
         try {
