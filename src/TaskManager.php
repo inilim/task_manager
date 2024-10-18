@@ -58,7 +58,11 @@ final class TaskManager
         }
     }
 
-    function many(int $seconds): void
+    /**
+     * @param int $workTime seconds
+     * @param int $delay delay between tasks
+     */
+    function many(int $workTime, int $delay = 1): void
     {
         while (true) {
             $start = \time();
@@ -67,15 +71,15 @@ final class TaskManager
                     $this->startTask();
                     $this->complitedTask();
                 } else {
-                    \sleep(1);
+                    \sleep(\abs($delay));
                 }
             } catch (\Throwable $e) {
                 $this->errorLog([], $e);
                 $e = null;
             }
 
-            $seconds -= \time() - $start;
-            if ($seconds <= 0) {
+            $workTime -= \time() - $start;
+            if ($workTime <= 0) {
                 break;
             }
         }
