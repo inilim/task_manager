@@ -248,6 +248,7 @@ final class TaskManager
         } catch (FailedExecuteException $e) {
             $this->errorLog($e->getError(), $e, $this->task);
         }
+        $this->task = null;
     }
 
     /**
