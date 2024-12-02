@@ -6,6 +6,7 @@ namespace Inilim\TaskManager;
 
 use Carbon\Carbon;
 use Inilim\IPDO\IPDO;
+use Symfony\Component\Process\PhpProcess;
 use Inilim\IPDO\Exception\FailedExecuteException;
 
 /**
@@ -19,6 +20,7 @@ use Inilim\IPDO\Exception\FailedExecuteException;
  * created_at:string,
  * repeat_after:?int,
  * counter:int,
+ * timeout:?int,
  * updated_at:string,
  * params:?string}
  */
@@ -27,18 +29,39 @@ final class TaskManager
     /**
      * @var ?Task
      */
-    protected ?array $task      = null;
-    protected ?\Closure $logger = null;
+    protected ?array $task                 = null;
+    protected ?string $pathToExecutablePhp = null;
+    protected ?\Closure $logger            = null;
+    protected ?PhpProcess $phpProcess;
     protected IPDO $db;
 
+    /**
+     * @param string|null $pathToExecutablePhp absolute path to file php
+     */
     function __construct(
         IPDO $db,
-        ?\Closure $logger = null
+        ?\Closure $logger = null,
+        ?string $pathToExecutablePhp = null
     ) {
         if ($logger !== null) {
             $this->logger = $logger;
         }
+
+        if ($pathToExecutablePhp !== null) {
+            if (!\is_file($pathToExecutablePhp)) {
+                throw new \Exception('not found executable file: ' . $pathToExecutablePhp);
+            }
+            $this->pathToExecutablePhp = \realpath($pathToExecutablePhp);
+        }
+
         $this->db = $db;
+        $this->phpProcess = new PhpProcess(
+            '', // string $script,
+            null, // ?string $cwd = null,
+            null, // ?array $env = null,
+            60, // int $timeout = 60,
+            $this->pathToExecutablePhp ? $this->pathToExecutablePhp : null // ?array $php = null
+        );
     }
 
     /**
@@ -94,6 +117,31 @@ final class TaskManager
     // ------------------------------------------------------------------
     // 
     // ------------------------------------------------------------------
+
+    protected function startTask(): void
+    {
+        $class  = \strval($this->task['class'] ?? '');
+        $method = \strval($this->task['method'] ?? '');
+        try {
+            $object = new $class;
+            $object->$method($this->task['params'], $this->task);
+        } catch (\Throwable $e) {
+            $this->errorLog(
+                [],
+                $e,
+                $this->task
+            );
+        }
+    }
+
+    protected function startTaskIsolation(): void
+    {
+        $timeout = $this->task['timeout'] ?? 60;
+
+        $phpProcess->setTimeout((float)$timeout);
+
+        $phpProcess->start(null, ['TASK' => \json_encode($this->task)]);
+    }
 
     protected function process(): void
     {
@@ -218,18 +266,6 @@ final class TaskManager
             return false;
         }
         return true;
-    }
-
-    protected function startTask(): void
-    {
-        $class  = \strval($this->task['class'] ?? '');
-        $method = \strval($this->task['method'] ?? '');
-        try {
-            $object = new $class;
-            $object->$method($this->task['params'], $this->task);
-        } catch (\Throwable $e) {
-            $this->errorLog([], $e, $this->task);
-        }
     }
 
     protected function complitedTask(): void
