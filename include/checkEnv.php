@@ -11,6 +11,6 @@ if (!\array_key_exists('TASK_PARAMS', $_SERVER)) {
 }
 
 if ($err) {
-    exit('err:' . \json_encode($err));
+    exit('__err:' . \json_encode($err));
 }
 unset($err);

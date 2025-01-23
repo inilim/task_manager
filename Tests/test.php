@@ -42,6 +42,7 @@ $process = new PhpProcess($script, null, ['BLA' => 123]);
 $process->setTimeout(5.0);
 $process->start();
 
+
 try {
     $process->wait();
 } catch (\Throwable) {
