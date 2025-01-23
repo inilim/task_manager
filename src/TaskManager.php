@@ -40,7 +40,7 @@ final class TaskManager
      */
     function __construct(
         IPDO $db,
-        ?\Closure $logger = null,
+        ?\Closure $logger            = null,
         ?string $pathToExecutablePhp = null
     ) {
         if ($logger !== null) {

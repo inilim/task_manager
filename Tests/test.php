@@ -16,7 +16,7 @@ Dump::init();
 // $phpBinaryPath = $phpBinaryFinder->find();
 
 // de($phpBinaryPath);
-// $process = new Process(['php', '-v']);
+$process = new Process(['php', '-v'], null, ['']);
 
 // de($_ENV);
 
@@ -38,17 +38,8 @@ $script = \sprintf(
     ...$files,
 );
 
-$process = new PhpProcess($script, null, ['BLA' => 123]);
-$process->setTimeout(5.0);
-$process->start();
-
-
-try {
-    $process->wait();
-} catch (\Throwable) {
-}
-
-dde($process->getOutput());
+$file = \tempnam(\sys_get_temp_dir(), 'task_m');
+\file_put_contents($file, $script);
 
 de();
 foreach ($results as $type => $data) {
